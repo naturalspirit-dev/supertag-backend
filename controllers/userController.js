@@ -127,6 +127,7 @@ const generateID = (len) => {
 
 exports.login = async (req, res) => {
   const params = req.body;
+  console.log(params);
   try {
     // Validate incoming data
     await indicative.validate(params, {
@@ -188,7 +189,8 @@ exports.register = async (req, res) => {
           clientId: "7k3accucxcgy86dnowamanfgc",
           clientSecret: "c90pafys7i5afz36tbjxl7kjf",
         });
-        const nylas = Nylas.with("gWLQVA1UsaHAPTXqfhW7NZTcodxmoK");
+        const nylas = Nylas.with(process.env.NYLAS_TOKEN);
+                                  
   
         // Create and send an email draft
         var draft = nylas.drafts.build({
