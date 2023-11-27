@@ -71,12 +71,13 @@ function shuffle (arr) {
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+    expiresIn: process.env.JWT_EXPIRES_IN * 24 * 60 * 60 * 1000,
   });
 };
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user.id);
+  console.log('token => ', process.env.JWT_COOKIE_EXPIRES_IN);
   const cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -186,20 +187,22 @@ exports.register = async (req, res) => {
   
         // Nylas configuration
         Nylas.config({
-          clientId: "7k3accucxcgy86dnowamanfgc",
-          clientSecret: "c90pafys7i5afz36tbjxl7kjf",
+          clientId: process.env.CLIENT_ID,
+          clientSecret: process.env.CLIENT_SECRET,
         });
         const nylas = Nylas.with(process.env.NYLAS_TOKEN);
                                   
   
         // Create and send an email draft
         var draft = nylas.drafts.build({
-          subject: `No Reply, < verify code > From SuperTag`,
+          subject: `No Reply, < verify code > From ${process.env.APP_NAME}`,
           to: [{ email: params.ds_email, name: "" }],
-          body: `${verifycode} with this code you can access to SuperTag.`,
+          body: `${verifycode} with this code you can access to ${process.env.APP_NAME}.`,
         });
   
         let message = await draft.send();
+        if(!params.nm_user)
+          params.nm_user = params.ds_email;
   
         // Update or create a temporary code for the user
         await Tempcode.findOneAndUpdate(
@@ -218,20 +221,20 @@ exports.register = async (req, res) => {
       const verifycode = randomcode(100000, 999999);
 
       Nylas.config({
-        clientId: "7k3accucxcgy86dnowamanfgc",
-        clientSecret: "c90pafys7i5afz36tbjxl7kjf",
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
       });
-      const nylas = Nylas.with("gWLQVA1UsaHAPTXqfhW7NZTcodxmoK");
+      const nylas = Nylas.with(process.env.NYLAS_TOKEN);
 
       var draft = nylas.drafts.build({
-        subject: `No Reply, < verify code > From SuperTag`,
+        subject: `No Reply, < verify code > From ${process.env.APP_NAME}`,
         to: [
           {
             email: params.ds_email,
             name: "",
           },
         ],
-        body: `${verifycode} with this code you can access to SuperTag.`,
+        body: `${verifycode} with this code you can access to ${process.env.APP_NAME}.`,
       });
 
       let message = await draft.send();//this code for send code to email address
@@ -396,16 +399,16 @@ exports.resend = async (req, res) => {
 
       // Nylas configuration
       Nylas.config({
-        clientId: "7k3accucxcgy86dnowamanfgc",
-        clientSecret: "c90pafys7i5afz36tbjxl7kjf",
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
       });
-      const nylas = Nylas.with("gWLQVA1UsaHAPTXqfhW7NZTcodxmoK");
+      const nylas = Nylas.with(process.env.NYLAS_TOKEN);
 
       // Create and send an email draft
       var draft = nylas.drafts.build({
-        subject: `No Reply, < verify code > From SuperTag`,
+        subject: `No Reply, < verify code > From ${process.env.APP_NAME}`,
         to: [{ email: params.ds_email, name: "" }],
-        body: `${verifycode} with this code you can access to SuperTag.`,
+        body: `${verifycode} with this code you can access to ${process.env.APP_NAME}.`,
       });
 
       let message = await draft.send();
@@ -493,21 +496,21 @@ exports.forgotPassword = async (req, res) => {
       
       // Configuring Nylas API
       Nylas.config({
-        clientId: "7k3accucxcgy86dnowamanfgc",
-        clientSecret: "c90pafys7i5afz36tbjxl7kjf",
+        clientId: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
       });
-      const nylas = Nylas.with("gWLQVA1UsaHAPTXqfhW7NZTcodxmoK");
+      const nylas = Nylas.with(process.env.NYLAS_TOKEN);
 
       // Creating an email draft
       var draft = nylas.drafts.build({
-        subject: `No Reply, < verify code > From SuperTag`,
+        subject: `No Reply, < verify code > From ${process.env.APP_NAME}`,
         to: [
           {
             email: params.email,
             name: "",
           },
         ],
-        body: `${verifycode} with this code you can confirm that you are a right customer on SuperTag.`,
+        body: `${verifycode} with this code you can confirm that you are a right customer on ${process.env.APP_NAME}.`,
       });
 
       // Sending the email
@@ -605,21 +608,21 @@ exports.setUpPassword = async (req, res) => {
 
         // Configuring Nylas API for sending email
         Nylas.config({
-          clientId: "7k3accucxcgy86dnowamanfgc",
-          clientSecret: "c90pafys7i5afz36tbjxl7kjf",
+          clientId: process.env.CLIENT_ID,
+          clientSecret: process.env.CLIENT_SECRET,
         });
-        const nylas = Nylas.with("gWLQVA1UsaHAPTXqfhW7NZTcodxmoK");
+        const nylas = Nylas.with(process.env.NYLAS_TOKEN);
 
         // Creating an email draft to send the new password
         var draft = nylas.drafts.build({
-          subject: `No Reply, < new password > From SuperTag`,
+          subject: `No Reply, < new password > From ${process.env.APP_NAME}`,
           to: [
             {
               email: params.email,
               name: "",
             },
           ],
-          body: `${ds_password} with this password you can sign in to SuperTag.`,
+          body: `${ds_password} with this password you can sign in to ${process.env.APP_NAME}.`,
         });
 
         // Sending the email
