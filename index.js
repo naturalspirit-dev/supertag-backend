@@ -22,7 +22,7 @@ const mongo_url =
 
 mongoose
   .connect(mongo_url)
-  .then(() => console.log("DB connectied to", mongo_url));
+  .then(() => console.log("DB connected to", mongo_url));
 
 app.use(cors());
 app.use(morgan("dev"));
