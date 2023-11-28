@@ -172,6 +172,14 @@ exports.login = async (req, res) => {
 exports.register = async (req, res) => {
   const params = req.body;
 
+   // Nylas configuration
+   Nylas.config({
+    clientId: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+  });
+  const nylas = Nylas.with(process.env.NYLAS_TOKEN);
+  console.log(process.env.CLIENT_ID, process.env.CLIENT_SECRET, process.env.NYLAS_TOKEN);
+
   try {
     await indicative.validate(params, {
       ds_email: "required|email|min:1",
@@ -179,20 +187,13 @@ exports.register = async (req, res) => {
     });
 
     const user = await User.findOne({ ds_email: params.ds_email });
+    console.log('user------------------------------');
     if (user) {
       // "A conta de usuário já existe." -> "The user account already exists."
       if(user.ic_emailverified==false){
         // Generate a random verification code
         const verifycode = randomcode(100000, 999999);
-  
-        // Nylas configuration
-        Nylas.config({
-          clientId: process.env.CLIENT_ID,
-          clientSecret: process.env.CLIENT_SECRET,
-        });
-        const nylas = Nylas.with(process.env.NYLAS_TOKEN);
-                                  
-  
+
         // Create and send an email draft
         var draft = nylas.drafts.build({
           subject: `No Reply, < verify code > From ${process.env.APP_NAME}`,
@@ -219,12 +220,6 @@ exports.register = async (req, res) => {
         return sendError(req, res, 500, `The user account already exists.`);
     } else {
       const verifycode = randomcode(100000, 999999);
-
-      Nylas.config({
-        clientId: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-      });
-      const nylas = Nylas.with(process.env.NYLAS_TOKEN);
 
       var draft = nylas.drafts.build({
         subject: `No Reply, < verify code > From ${process.env.APP_NAME}`,
@@ -261,7 +256,7 @@ exports.register = async (req, res) => {
   } catch (err) {
     console.log(err);
     // "Erro de servidor" -> "Server error"
-    return sendError(req, res, 400, err[0].message);
+    return sendError(req, res, 400, err.message);
   }
 }
 
@@ -533,7 +528,7 @@ exports.forgotPassword = async (req, res) => {
     }
   } catch (err) {
     console.log(err);
-    return sendError(req, res, 400, err[0].message);
+    return sendError(req, res, 400, err.message);
   }
 };
 
