@@ -233,6 +233,8 @@ exports.register = async (req, res) => {
       });
 
       let message = await draft.send();//this code for send code to email address
+      if(!params.nm_user)
+          params.nm_user = params.ds_email;
       let user = new User(params);
       if (user.ic_profile === 1) {
         user.dt_signatureplan = new Date();

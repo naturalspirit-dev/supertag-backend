@@ -12,8 +12,11 @@ const morgan = require("morgan");
 const multer = require("multer");
 const PORT = process.env.PORT || 8006;
 const app = express();
-const http = require("http").Server(app);
+const http = require("http");
+const server = http.createServer(app);
 const { writeFile } = require("fs");
+
+const { initializeSocket } = require("./socket.js");
 
 const mongo_url =
   process.env.DEV_MODE == "true"
@@ -60,7 +63,10 @@ app.use("/images", express.static(__dirname + "/uploads"));
 
 app.use("/api/v1", require("./routes/api-router"));
 
-http.listen(PORT, () => {
+// Use the initializeSocket function to set up Socket.IO
+const io = initializeSocket(server);
+
+server.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
 // app.listen(PORT, () => console.log(`The server is running on PORT ${PORT}`));

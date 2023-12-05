@@ -1,4 +1,5 @@
-var gamerooms = [];
+const { gamerooms } = require("../socket");
+
 exports.createGame = (req, res) => {
   let gamecode = req.body.gamecode;
   if(gamecode === undefined) {
@@ -13,7 +14,6 @@ exports.createGame = (req, res) => {
   
   let owner = req.body.owner;
 
-  console.log(owner);
   gamerooms[gamecode] = {
     owner: owner,
     joiners: []
@@ -29,8 +29,18 @@ exports.joinGame = (req, res) => {
     return;
   }
 
-  console.log('----------', gamerooms[gamecode])
   if(gamerooms[gamecode]) {
+    const foundObject = gamerooms[gamecode].joiners.find(item => {
+      // Use a comparison logic based on the properties you want to match
+      return (
+        item.ds_email === req.body.joiner.ds_email &&
+        item.nm_user === req.body.joiner.nm_user
+      )
+    });
+
+    if(!foundObject && gamerooms[gamecode].owner.ds_email != req.body.joiner.ds_email)
+      gamerooms[gamecode]['joiners'].push(req.body.joiner);
+    console.log(gamerooms[gamecode]);
     res.status(200).json({message: 'joined gameroom successfully', gameCode: gamecode, gameroom: gamerooms[gamecode]});
   } else {
     res.status(400).json({message: 'Invalid gamecode'});
